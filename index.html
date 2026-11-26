@@ -26,10 +26,12 @@ h1,h2,.num{font-family:"Barlow Condensed","Arial Narrow",Roboto,system-ui,sans-s
 h1{font-size:2rem;margin:0 0 2px}
 h2{font-size:1.25rem;margin:0 0 10px}
 .sub{color:var(--muted);margin:0 0 14px}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
 .seg button{display:flex;flex-direction:column;align-items:flex-start;min-height:56px;padding:8px 10px;text-align:left;background:var(--surface)}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
 .seg small{opacity:.75;font-size:.8rem}
+.chk{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:.95rem;cursor:pointer}
+.chk input{width:22px;height:22px;min-height:22px;padding:0;flex:none}
 .stats{display:grid;grid-template-columns:1.2fr 1.2fr .8fr;gap:8px;margin-bottom:16px}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
 .stat .num{font-size:2rem;line-height:1}
@@ -166,10 +168,12 @@ button.send{border-color:var(--accent);font-weight:600}
 
 <div id="tabSets">
 <div class="seg" role="group" aria-label="Event type">
-<button data-ev="standard"><strong>Standard</strong><small>5 dry, 3 wet</small></button>
-<button data-ev="endurance"><strong>Endurance</strong><small>7 dry, 5 wet</small></button>
+<button data-ev="standard"><strong>IMSA Standard</strong><small>5 dry, 3 wet</small></button>
+<button data-ev="endurance"><strong>IMSA Endurance</strong><small>7 dry, 5 wet</small></button>
+<button data-ev="sro"><strong>SRO</strong><small>6 dry, unlimited wet</small></button>
 <button data-ev="test"><strong>Test</strong><small>No limit</small></button>
 </div>
+<label class="chk" id="bronzeRow" style="display:none"><input type="checkbox" id="bronze"><span>Bronze test at this event (adds a 7th dry set)</span></label>
 
 <div class="stats">
 <div class="stat"><div class="num" id="DryN"></div><span>Dry used</span><div class="pips Dry" id="DryP"></div><div class="note" id="DryNote"></div></div>
@@ -267,7 +271,12 @@ var START_GROUPS = [{ title: 'Cold pressure', short: 'cold pressure', rows: [['p
 var FIN_GROUPS = [{ title: 'Hot pressure', short: 'hot pressure', rows: [['pf', 'Hot']] }, GROUPS[1]];
 var PREP_GROUPS = [{ title: 'Durometer', short: 'durometer', rows: GROUPS[2].rows }];
 var prepShown = null;
-var LIMITS = { standard: { Dry: 5, Wet: 3 }, endurance: { Dry: 7, Wet: 5 }, test: { Dry: null, Wet: null } };
+var LIMITS = { standard: { Dry: 5, Wet: 3 }, endurance: { Dry: 7, Wet: 5 }, sro: { Dry: 6, Wet: null }, test: { Dry: null, Wet: null } };
+function limFor(t) {
+  var l = LIMITS[state.event][t];
+  if (state.event === 'sro' && t === 'Dry' && state.bronze) l += 1;
+  return l;
+}
 var state = null;
 var pending = null;
 var tab = 'sets';
@@ -337,7 +346,9 @@ function render() {
   if (document.activeElement !== $('evName')) $('evName').value = state.name;
   if (document.activeElement !== $('evDate')) $('evDate').value = state.date || '';
   $('evDel').textContent = pending === 'ev' ? 'Tap again to delete' : 'Delete event';
-  var lim = LIMITS[state.event];
+  var lim = { Dry: limFor('Dry'), Wet: limFor('Wet') };
+  $('bronzeRow').style.display = state.event === 'sro' ? '' : 'none';
+  $('bronze').checked = !!state.bronze;
   document.querySelectorAll('[data-ev]').forEach(function (b) {
     b.setAttribute('aria-pressed', b.dataset.ev === state.event);
   });
@@ -429,6 +440,7 @@ function val(c, k) {
 
 function defaultSessions(kind) {
   if (kind === 'endurance') return ['Practice 1', 'Practice 2', 'Practice 3', 'Practice 4', 'Qualifying', 'Race'];
+  if (kind === 'sro') return ['Practice 1', 'Practice 2', 'Qualifying', 'Race 1', 'Race 2'];
   if (kind === 'test') return ['Session 1', 'Session 2', 'Session 3'];
   return ['Practice 1', 'Practice 2', 'Qualifying', 'Race'];
 }
@@ -690,8 +702,10 @@ document.querySelector('.seg').onclick = function (e) {
   state.event = b.dataset.ev; pending = null; save(); render();
 };
 
+$('bronze').onchange = function () { state.bronze = this.checked; save(); render(); };
+
 $('addSet').onclick = function () {
-  var name = $('aName').value.trim(), t = $('aType').value, lim = LIMITS[state.event][t];
+  var name = $('aName').value.trim(), t = $('aType').value, lim = limFor(t);
   if (!name) { $('addMsg').textContent = 'Enter a name for this set.'; return; }
   if (state.sets.some(function (s) { return s.name.toLowerCase() === name.toLowerCase(); })) {
     $('addMsg').textContent = 'A set with that name already exists.'; return;
@@ -706,7 +720,8 @@ $('addSet').onclick = function () {
 
 $('fillBtn').onclick = function () {
   TYPES.forEach(function (t) {
-    while (ofType(t).length < LIMITS[state.event][t]) {
+    var L = limFor(t);
+    while (L !== null && ofType(t).length < L) {
       state.sets.push({ id: uid(), name: nextName(t), type: t, runs: [] });
     }
   });

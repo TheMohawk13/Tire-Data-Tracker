@@ -22,7 +22,9 @@ The icon has a blue accent so you can tell it apart from Tire Set Tracker.
 
 ## How to use it
 
-**Tire sets tab** works like Tire Set Tracker: create an event, pick Standard, Endurance or Test, and add your sets. Laps and the allocation counters come from the runs you record on the Runs tab.
+**Tire sets tab** works like Tire Set Tracker: create an event, pick IMSA Standard (5 dry, 3 wet), IMSA Endurance (7 dry, 5 wet), SRO (6 dry, unlimited wet) or Test (no limit), and add your sets. Laps and the allocation counters come from the runs you record on the Runs tab.
+
+**SRO events** allow 6 dry sets and unlimited wet sets. If you are in the bronze test at that event, tick **Bronze test at this event** to allow a 7th dry set. Wet sets have no limit, so the wet counter just counts the sets you have used. The tick is saved with the event.
 
 **Runs tab** follows how a session actually goes:
 
@@ -57,7 +59,7 @@ LF 188/182/174 (in-out +14)
 
 **Durometer (garage prep)** is recorded once per tire set, not per run. On the Tire sets tab, scroll to **Durometer (garage prep)**, choose the set, and enter the inside, middle and outer readings for LF, RF, LR and RR as you prep the tires before first use. Saving again for the same set replaces the earlier readings. The readings show on that set's card.
 
-**Edit sessions.** Under **Start a run**, open **Edit sessions** to add sessions (for example "Practice 5" or "Race 2") or remove ones you don't need. A session that already has runs can't be removed. New events start with a default list that depends on the type (Standard, Endurance or Test), and you can change it.
+**Edit sessions.** Under **Start a run**, open **Edit sessions** to add sessions (for example "Practice 5" or "Race 2") or remove ones you don't need. A session that already has runs can't be removed. New events start with a default list that depends on the type (IMSA Standard, IMSA Endurance, SRO or Test), and you can change it.
 
 ## Fixing mistakes
 
@@ -72,4 +74,4 @@ Everything is saved on **your own device only**. People you share the link with 
 
 ## Updating the site
 
-Upload the changed files, then raise the version number in `sw.js` (for example `tire-data-tracking-v6` to `tire-data-tracking-v7`) so phones pick up the new version.
+Upload the changed files, then raise the version number in `sw.js` (for example `tire-data-tracking-v8` to `tire-data-tracking-v9`) so phones pick up the new version.

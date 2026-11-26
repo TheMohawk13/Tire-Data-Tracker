@@ -1,6 +1,6 @@
 // Bump CACHE when you upload a new version so phones pick up the change.
 var PREFIX = 'tire-data-tracking-';
-var CACHE = PREFIX + 'v6';
+var CACHE = PREFIX + 'v8';
 var FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {
