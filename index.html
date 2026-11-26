@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tire Data Tracking</title>
+<meta name="theme-color" content="#1b1c1e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tire Data Tracking">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#eceae5;--surface:#fbfaf8;--text:#1b1c1e;--muted:#66686c;--line:#d3d0c8;--accent:#1b1c1e;--accent-text:#fbfaf8;--danger:#b3261e;
+--dry:#f2c200;--wet:#2d7fd3;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17181a;--surface:#222427;--text:#ecebe7;--muted:#9a9ca1;--line:#383b3f;--accent:#ecebe7;--accent-text:#17181a;--danger:#ff8a80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17181a;--surface:#222427;--text:#ecebe7;--muted:#9a9ca1;--line:#383b3f;--accent:#ecebe7;--accent-text:#17181a;--danger:#ff8a80;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:640px;margin:0 auto;padding:20px 16px 48px}
+h1,h2,.num{font-family:"Barlow Condensed","Arial Narrow",Roboto,system-ui,sans-serif;font-weight:700;letter-spacing:.01em}
+h1{font-size:2rem;margin:0 0 2px}
+h2{font-size:1.25rem;margin:0 0 10px}
+.sub{color:var(--muted);margin:0 0 14px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.seg button{display:flex;flex-direction:column;align-items:flex-start;min-height:56px;padding:8px 10px;text-align:left;background:var(--surface)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.seg small{opacity:.75;font-size:.8rem}
+.stats{display:grid;grid-template-columns:1.2fr 1.2fr .8fr;gap:8px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
+.stat .num{font-size:2rem;line-height:1}
+.stat span,.note{color:var(--muted);font-size:.85rem}
+.note.over{color:var(--danger)}
+.pips{display:flex;flex-wrap:wrap;gap:3px;margin:6px 0 4px}
+.pip{width:11px;height:11px;border-radius:50%;border:2px solid var(--line)}
+.pips.Dry .pip.on{background:var(--dry);border-color:var(--dry)}
+.pips.Wet .pip.on{background:var(--wet);border-color:var(--wet)}
+.pip.over{background:var(--danger);border-color:var(--danger)}
+section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:16px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:3px}
+input,select{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;min-height:44px}
+button{font:inherit;cursor:pointer;min-height:44px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--text);padding:0 14px}
+button.primary{background:var(--accent);color:var(--accent-text);border-color:var(--accent);width:100%;font-weight:600}
+button.wide{width:100%;margin-top:8px}
+button.small{min-height:36px;padding:0 10px;font-size:.85rem}
+button.warn{color:var(--danger);border-color:var(--danger)}
+:focus-visible{outline:2px solid var(--wet);outline-offset:2px}
+.msg{color:var(--danger);font-size:.9rem;min-height:1.2em;margin:6px 0 0}
+.set{background:var(--surface);border:1px solid var(--line);border-left:10px solid var(--dry);border-radius:10px;padding:12px 12px 12px 14px;margin-bottom:10px}
+.set.Wet{border-left-color:var(--wet)}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.name{font-size:1.5rem;line-height:1.1}
+.meta{color:var(--muted);font-size:.9rem}
+.laps{text-align:right}.laps .num{font-size:2.2rem;line-height:1}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:1px 9px;font-size:.8rem;margin-left:6px;vertical-align:middle}
+.chip.fresh{border-color:var(--muted);color:var(--muted)}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:.95rem}
+.list li:last-child{border-bottom:none}
+.runs{margin-top:10px;border-top:1px solid var(--line)}
+.runs li:last-child{border-bottom:1px solid var(--line)}
+.runs button{min-height:32px;padding:0 8px;border:none;color:var(--muted)}
+.actions{margin-top:8px;text-align:right}
+.empty{color:var(--muted);padding:6px 0 14px;text-align:center}
+footer{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--muted);font-size:.85rem}
+#splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:var(--bg);color:var(--text);cursor:pointer;animation:splashOut .4s ease 3s forwards}
+@keyframes splashOut{to{opacity:0;visibility:hidden}}
+@media (prefers-reduced-motion:reduce){#splash{animation-duration:.01s}}
+.wheel{width:170px;height:170px;margin-bottom:20px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.4))}
+.spin{transform-box:fill-box;transform-origin:50% 50%}
+@media (prefers-reduced-motion:no-preference){.spin{animation:wheelIn 2.6s cubic-bezier(.12,.7,.25,1) both}}
+@keyframes wheelIn{from{transform:rotate(-140deg)}to{transform:rotate(0)}}
+.sp-title{font-size:2.4rem;line-height:1}
+.sp-by{color:var(--muted);margin:10px 0 2px;font-size:.95rem}
+.sp-co{font-size:1.5rem;letter-spacing:.02em}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.tabs button{min-height:46px;font-weight:600;background:var(--surface)}
+.tabs button[aria-pressed="true"],.corners button[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.grp{font-size:.9rem;font-weight:600;margin:12px 0 6px}
+.lbl{font-size:.85rem;color:var(--muted);margin-bottom:3px}
+.corners{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px}
+.corners button{min-height:44px;font-weight:600;padding:0}
+.rd{flex:1;min-width:0;padding:2px 0}
+.rd-l{color:var(--muted);font-size:.9rem}
+.rg{display:grid;grid-template-columns:54px repeat(4,minmax(0,1fr));gap:6px 5px;align-items:center}
+.rg-g{grid-column:1/-1;font-size:.9rem;font-weight:600;margin-top:10px}
+.rg-h{text-align:center;font-weight:700;font-size:.85rem;color:var(--muted)}
+.rg-l{font-size:.8rem;color:var(--muted)}
+.rg input{min-width:0;padding:8px 2px;min-height:42px;text-align:center;font-size:16px}
+.list li.rdx{display:block}
+.rdtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.rt{width:100%;border-collapse:collapse;font-size:.9rem}
+.rt th{color:var(--muted);font-weight:700;text-align:center;padding:3px 2px}
+.rt td{text-align:center;padding:3px 2px;border-top:1px solid var(--line)}
+.rt td.rt-l{text-align:left;color:var(--muted);font-size:.85rem;white-space:nowrap}
+.rt tr.calc td{color:var(--muted);font-style:italic}
+details.sesbox{margin-top:14px;border-top:1px solid var(--line);padding-top:6px}
+details.sesbox summary{cursor:pointer;color:var(--muted);padding:6px 0}
+.btns{display:flex;gap:6px}
+.btns button{min-height:36px;padding:0 10px;font-size:.85rem}
+button.send{border-color:var(--accent);font-weight:600}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-left:10px solid #2e9e5a;border-radius:10px;padding:10px 12px;margin-bottom:12px}
+.sb{display:none;position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.55);align-items:flex-end;justify-content:center}
+.sb.on{display:flex}
+.sbp{background:var(--surface);color:var(--text);width:100%;max-width:640px;border-radius:14px 14px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));max-height:92%;overflow:auto}
+#shareText{width:100%;min-height:210px;font:14px/1.4 ui-monospace,Menlo,monospace;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical}
+.sbg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.evbar{margin-bottom:12px}
+.evrow{display:flex;gap:8px;margin-bottom:8px}
+.evrow select,.evrow input{flex:1;min-width:0}
+.evrow button{flex:none}
+</style>
+</head>
+<body>
+<div id="splash">
+<svg class="wheel" viewBox="0 0 200 200" aria-hidden="true">
+<defs>
+<radialGradient id="tw-t" cx="50%" cy="50%" r="50%"><stop offset=".78" stop-color="#0b0c0d"/><stop offset=".83" stop-color="#1b1c1f"/><stop offset=".95" stop-color="#131416"/><stop offset="1" stop-color="#2e3034"/></radialGradient>
+<linearGradient id="tw-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b5e64"/><stop offset=".5" stop-color="#34363a"/><stop offset="1" stop-color="#1c1d20"/></linearGradient>
+<radialGradient id="tw-d" cx="50%" cy="50%" r="50%"><stop offset=".45" stop-color="#6a6d73"/><stop offset=".8" stop-color="#9a9ea5"/><stop offset="1" stop-color="#7b7f86"/></radialGradient>
+<linearGradient id="tw-h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<path id="tw-p" d="M15,100a85,85 0 1,1 170,0a85,85 0 1,1 -170,0"/>
+<path id="tw-k" d="M97.5,78h5l2.2-54q-4.7-2.4-9.4,0z" fill="url(#tw-g)" stroke="#6d7076" stroke-width=".5"/>
+</defs>
+<circle cx="100" cy="100" r="97" fill="url(#tw-t)" stroke="#3b3e43" stroke-width="1.5"/>
+<g class="spin">
+<circle cx="100" cy="100" r="94.5" fill="none" stroke="#08090a" stroke-width="3" stroke-dasharray="2.2 2.2" opacity=".7"/>
+<circle cx="100" cy="100" r="91" fill="none" stroke="#2a2c30" stroke-width=".8"/>
+<circle cx="100" cy="100" r="82" fill="none" stroke="#26282b" stroke-width=".8"/>
+<text font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-size="7" font-weight="700" letter-spacing="2.4" fill="#cfd2d7" opacity=".75"><textPath href="#tw-p" startOffset="25%" text-anchor="middle">TIRE DATA TRACKING</textPath></text>
+<circle cx="100" cy="100" r="78" fill="#0b0c0d" stroke="#6b6f75" stroke-width="1.2"/>
+<circle cx="100" cy="100" r="73" fill="none" stroke="url(#tw-g)" stroke-width="5"/>
+<circle cx="100" cy="100" r="60" fill="url(#tw-d)"/>
+<circle cx="100" cy="100" r="54" fill="none" stroke="#2a2c30" stroke-width="8" stroke-dasharray="3.2 3" opacity=".85"/>
+<circle cx="100" cy="100" r="31" fill="#1d1f22"/>
+<use href="#tw-k"/><use href="#tw-k" transform="rotate(36 100 100)"/><use href="#tw-k" transform="rotate(72 100 100)"/><use href="#tw-k" transform="rotate(108 100 100)"/><use href="#tw-k" transform="rotate(144 100 100)"/><use href="#tw-k" transform="rotate(180 100 100)"/><use href="#tw-k" transform="rotate(216 100 100)"/><use href="#tw-k" transform="rotate(252 100 100)"/><use href="#tw-k" transform="rotate(288 100 100)"/><use href="#tw-k" transform="rotate(324 100 100)"/>
+<circle cx="100" cy="100" r="24" fill="url(#tw-g)" stroke="#6d7076" stroke-width=".6"/>
+<circle cx="100" cy="85" r="3" fill="#3b8fe0" stroke="#2a2c30" stroke-width=".8"/><circle cx="114.26" cy="95.36" r="3" fill="#3b8fe0" stroke="#2a2c30" stroke-width=".8"/><circle cx="108.82" cy="112.14" r="3" fill="#3b8fe0" stroke="#2a2c30" stroke-width=".8"/><circle cx="91.18" cy="112.14" r="3" fill="#3b8fe0" stroke="#2a2c30" stroke-width=".8"/><circle cx="85.74" cy="95.36" r="3" fill="#3b8fe0" stroke="#2a2c30" stroke-width=".8"/>
+<circle cx="100" cy="100" r="7" fill="#17181a" stroke="#5d6066" stroke-width="1"/>
+</g>
+<circle cx="100" cy="100" r="97" fill="url(#tw-h)"/>
+</svg>
+<div class="sp-title num">Tire Data Tracking</div>
+<div class="sp-by">created by</div>
+<div class="sp-co num">Ryne Hoover Transportation</div>
+</div>
+<main>
+<h1>Tire data tracking</h1>
+<p class="sub">Sets, laps and readings for every event.</p>
+
+<div class="evbar">
+<label for="evSel">Saved events</label>
+<div class="evrow"><select id="evSel"></select><button class="small" id="evNew">New event</button></div>
+<div class="evrow"><input id="evName" maxlength="40" placeholder="Event name, e.g. Road America" aria-label="Event name" autocomplete="off"><button class="small warn" id="evDel">Delete event</button></div>
+<label for="evDate">Event date (optional)</label>
+<div class="evrow"><input type="date" id="evDate"><button class="small" id="evNoDate">No date</button></div>
+</div>
+
+<nav class="tabs" aria-label="Sections"><button data-tab="sets" aria-pressed="true">Tire sets</button><button data-tab="data" aria-pressed="false">Runs</button></nav>
+
+<div id="tabSets">
+<div class="seg" role="group" aria-label="Event type">
+<button data-ev="standard"><strong>Standard</strong><small>5 dry, 3 wet</small></button>
+<button data-ev="endurance"><strong>Endurance</strong><small>7 dry, 5 wet</small></button>
+<button data-ev="test"><strong>Test</strong><small>No limit</small></button>
+</div>
+
+<div class="stats">
+<div class="stat"><div class="num" id="DryN"></div><span>Dry used</span><div class="pips Dry" id="DryP"></div><div class="note" id="DryNote"></div></div>
+<div class="stat"><div class="num" id="WetN"></div><span>Wet used</span><div class="pips Wet" id="WetP"></div><div class="note" id="WetNote"></div></div>
+<div class="stat"><div class="num" id="sLaps">0</div><span>Weekend laps</span></div>
+</div>
+
+<div id="sets"></div>
+
+<section id="bySes" style="display:none">
+<h2>By session</h2>
+<ul class="list" id="sesList"></ul>
+</section>
+
+<section>
+<h2>Add a tire set</h2>
+<div class="row">
+<div><label for="aName">Set name</label><input id="aName" maxlength="12" placeholder="e.g. D1" autocomplete="off"></div>
+<div><label for="aType">Type</label><select id="aType"><option>Dry</option><option>Wet</option></select></div>
+</div>
+<label for="aPrior">Laps already on it (from a previous event)</label>
+<input id="aPrior" type="number" inputmode="numeric" min="0" value="0" style="margin-bottom:8px">
+<button class="primary" id="addSet">Add set</button>
+<button class="wide" id="fillBtn" data-act="fill"></button>
+<p class="msg" id="addMsg"></p>
+</section>
+
+<section>
+<h2>Durometer (garage prep)</h2>
+<p class="meta" style="margin:0 0 8px">Taken once per tire set, before its first use.</p>
+<label for="pSet">Tire set</label>
+<select id="pSet" style="margin-bottom:8px"></select>
+<div class="rg" id="pGrid"></div>
+<button class="primary" id="savePrep" style="margin-top:12px">Save durometer</button>
+<p class="msg" id="prepMsg"></p>
+</section>
+
+</div>
+
+<div id="tabData" style="display:none">
+<div id="sentBar" class="bar" style="display:none"></div>
+<section>
+<h2>Start a run</h2>
+<div class="row">
+<div><label for="dSet">Tire set</label><select id="dSet"></select></div>
+<div><label for="dSes">Session</label><select id="dSes"></select></div>
+</div>
+<div class="rg" id="rGrid"></div>
+<div class="meta" id="lastHot" style="margin-top:8px"></div>
+<button class="primary" id="startRun" style="margin-top:12px">Send out</button>
+<p class="msg" id="readMsg"></p>
+<details class="sesbox"><summary>Edit sessions</summary>
+<ul class="list" id="sesEditList"></ul>
+<div class="evrow"><input id="sesNew" maxlength="30" placeholder="New session, e.g. Practice 5" autocomplete="off"><button class="small" id="sesAdd">Add session</button></div>
+<p class="msg" id="sesMsg"></p>
+</details>
+</section>
+<div id="openRuns"></div>
+<div id="readings"></div>
+</div>
+
+<footer>
+<span>Saved on this device only, so people you share the link with start fresh and can’t see your data. Clearing your browser data erases it.</span>
+<button class="small warn" id="reset">Clear this event</button>
+</footer>
+</main>
+
+<div class="sb" id="shareBox" role="dialog" aria-label="Send readings">
+<div class="sbp">
+<h2 style="margin-bottom:8px">Send readings</h2>
+<textarea id="shareText" rows="9"></textarea>
+<div class="sbg">
+<button id="shNative" style="display:none">Share…</button>
+<button id="shWa">WhatsApp</button>
+<button id="shSms">Text message</button>
+<button id="shCopy">Copy</button>
+</div>
+<button id="shClose" style="width:100%;margin-top:8px">Close</button>
+</div>
+</div>
+
+<script>
+var STORE_KEY = 'tireDataTracking.v1';
+var SESSIONS = ['Practice 1', 'Practice 2', 'Qualifying', 'Race'];
+var TYPES = ['Dry', 'Wet'];
+var CORNERS = ['LF', 'RF', 'LR', 'RR'];
+var KEYS = ['ps', 'pf', 'ti', 'tm', 'to', 'hi', 'hm', 'ho'];
+var GROUPS = [
+  { title: 'Air pressure', short: 'pressure', rows: [['ps', 'Start'], ['pf', 'Finish']] },
+  { title: 'Tire temperature', short: 'temperature', rows: [['ti', 'Inside'], ['tm', 'Middle'], ['to', 'Outer']] },
+  { title: 'Durometer', short: 'durometer', rows: [['hi', 'Inside'], ['hm', 'Middle'], ['ho', 'Outer']] }
+];
+var DISPLAY = [['ps', 'Cold'], ['pf', 'Hot'], ['dp', 'Change'], ['ti', 'Temp in'], ['tm', 'Temp mid'], ['to', 'Temp out'], ['sp', 'In − out']];
+var START_GROUPS = [{ title: 'Cold pressure', short: 'cold pressure', rows: [['ps', 'Cold']] }];
+var FIN_GROUPS = [{ title: 'Hot pressure', short: 'hot pressure', rows: [['pf', 'Hot']] }, GROUPS[1]];
+var PREP_GROUPS = [{ title: 'Durometer', short: 'durometer', rows: GROUPS[2].rows }];
+var prepShown = null;
+var LIMITS = { standard: { Dry: 5, Wet: 3 }, endurance: { Dry: 7, Wet: 5 }, test: { Dry: null, Wet: null } };
+var state = null;
+var pending = null;
+var tab = 'sets';
+var finishing = null;
+var justSaved = null;
+var RUNNO = {};
+var store = { events: [], current: null };
+
+try {
+  var raw = localStorage.getItem(STORE_KEY);
+  if (raw) {
+    var s3 = JSON.parse(raw);
+    if (s3 && Array.isArray(s3.events)) {
+      s3.events.forEach(function (ev) {
+        if (!LIMITS[ev.event]) ev.event = 'standard';
+        if (!Array.isArray(ev.sets)) ev.sets = [];
+        ev.sets.forEach(function (st) {
+          if (!Array.isArray(st.runs)) st.runs = [];
+          if (!Array.isArray(st.readings)) st.readings = [];
+          migrateReadings(st);
+          st.readings.forEach(function (r) { st.runs.push({ id: r.id, session: r.session, laps: null, done: true, t: 0, c: r.c }); });
+          st.readings = [];
+          st.runs.forEach(function (r) {
+            if (!r.c) return;
+            Object.keys(r.c).forEach(function (cn) {
+              var o = r.c[cn];
+              ['hi', 'hm', 'ho'].forEach(function (k) {
+                if (o[k] === undefined || o[k] === null) return;
+                if (!st.duro) st.duro = {};
+                if (!st.duro[cn]) st.duro[cn] = {};
+                if (st.duro[cn][k] === undefined) st.duro[cn][k] = o[k];
+                delete o[k];
+              });
+              if (!Object.keys(o).length) delete r.c[cn];
+            });
+          });
+        });
+      });
+      store = s3;
+    }
+  }
+} catch (e) {}
+if (!store.events.length) store.events.push({ id: uid(), name: 'Event 1', event: 'standard', date: '', sets: [] });
+state = store.events.filter(function (ev) { return ev.id === store.current; })[0] || store.events[0];
+function save() { store.current = state.id; try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) {} }
+function $(id) { return document.getElementById(id); }
+function uid() { return Math.random().toString(36).slice(2, 9); }
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function laps(s) { return s.runs.reduce(function (n, r) { return n + (r.laps || 0); }, 0); }
+function ofType(t) { return state.sets.filter(function (s) { return s.type === t; }); }
+function opts(arr) { return arr.map(function (a) { return '<option>' + esc(a) + '</option>'; }).join(''); }
+
+$('rGrid').innerHTML = grid(START_GROUPS, 's-');
+$('pGrid').innerHTML = grid(PREP_GROUPS, 'p-');
+
+function render() {
+  numberRuns();
+  renderData();
+  $('evSel').innerHTML = store.events.map(function (ev) {
+    return '<option value="' + ev.id + '">' + esc(ev.name) + (ev.date ? ' · ' + fmtDate(ev.date) : '') + '</option>';
+  }).join('');
+  $('evSel').value = state.id;
+  if (document.activeElement !== $('evName')) $('evName').value = state.name;
+  if (document.activeElement !== $('evDate')) $('evDate').value = state.date || '';
+  $('evDel').textContent = pending === 'ev' ? 'Tap again to delete' : 'Delete event';
+  var lim = LIMITS[state.event];
+  document.querySelectorAll('[data-ev]').forEach(function (b) {
+    b.setAttribute('aria-pressed', b.dataset.ev === state.event);
+  });
+
+  var missing = [];
+  TYPES.forEach(function (t) {
+    var used = ofType(t).filter(function (s) { return s.runs.length; }).length;
+    if (lim[t] === null) {
+      var cnt = ofType(t).length, dots = '';
+      for (var j = 0; j < used; j++) dots += '<span class="pip on"></span>';
+      $(t + 'N').textContent = used;
+      $(t + 'P').innerHTML = dots;
+      $(t + 'Note').className = 'note';
+      $(t + 'Note').textContent = cnt + (cnt === 1 ? ' set' : ' sets') + ' added';
+      return;
+    }
+    var gap = Math.max(0, lim[t] - ofType(t).length);
+    if (gap) missing.push(gap + ' ' + t.toLowerCase());
+    $(t + 'N').textContent = used + '/' + lim[t];
+    var pips = '';
+    for (var i = 0; i < Math.max(lim[t], used); i++) {
+      pips += '<span class="pip' + (i < used ? (i >= lim[t] ? ' over' : ' on') : '') + '"></span>';
+    }
+    $(t + 'P').innerHTML = pips;
+    var note = $(t + 'Note');
+    note.className = 'note' + (used > lim[t] ? ' over' : '');
+    note.textContent = used > lim[t] ? (used - lim[t]) + ' over limit' : (lim[t] - used ? (lim[t] - used) + ' left' : 'none left');
+  });
+  $('sLaps').textContent = state.sets.reduce(function (n, s) { return n + laps(s); }, 0);
+
+  $('fillBtn').style.display = missing.length ? '' : 'none';
+  $('fillBtn').textContent = 'Add all missing sets (' + missing.join(', ') + ')';
+  $('reset').textContent = pending === 'all' ? 'Tap again to clear' : 'Clear this event';
+
+  $('bySes').style.display = state.sets.length ? '' : 'none';
+  $('sesList').innerHTML = sess().map(function (ses) {
+    var names = [], n = 0;
+    state.sets.forEach(function (s) {
+      var rs = s.runs.filter(function (r) { return r.session === ses; });
+      if (rs.length) { names.push(esc(s.name)); n += rs.reduce(function (a, r) { return a + (r.laps || 0); }, 0); }
+    });
+    return '<li><span>' + ses + '</span><span>' + (names.length ? names.join(', ') + ' · ' + n + (n === 1 ? ' lap' : ' laps') : '—') + '</span></li>';
+  }).join('');
+
+  if (!state.sets.length) {
+    $('sets').innerHTML = '<div class="empty">No tire sets yet. Add them below to start logging runs.</div>';
+    return;
+  }
+  $('sets').innerHTML = state.sets.map(function (s) {
+    var runs = s.runs.map(function (r) {
+      return '<li><span>' + esc(r.session) + ' · Run ' + (RUNNO[r.id] || '') + ' · ' + (r.done === false ? 'on track' : (r.laps ? r.laps + (r.laps === 1 ? ' lap' : ' laps') : 'no laps logged')) +
+        '</span><button data-act="run" data-set="' + s.id + '" data-run="' + r.id + '" aria-label="Remove run">Remove</button></li>';
+    }).join('');
+    var chip = s.runs.length ? '<span class="chip">Used</span>' : '<span class="chip fresh">' + (s.prior ? 'Not run yet' : 'Unused') + '</span>';
+    return '<div class="set ' + s.type + '"><div class="top"><div><div class="name num">' + esc(s.name) + chip + '</div>' +
+      '<div class="meta">' + s.type + (s.prior ? ', ' + s.prior + ' laps from a previous event' : '') + (dataRuns(s) ? ', ' + dataRuns(s) + (dataRuns(s) === 1 ? ' run with readings' : ' runs with readings') : '') + '</div></div>' +
+      '<div class="laps"><div class="num">' + (laps(s) + (s.prior || 0)) + '</div><div class="meta">laps total</div></div></div>' +
+      durHtml(s) + (runs ? '<ul class="list runs">' + runs + '</ul>' : '') +
+      '<div class="actions"><button class="small warn" data-act="set" data-set="' + s.id + '">' +
+      (pending === s.id ? 'Tap again to delete' : 'Delete set') + '</button></div></div>';
+  }).join('');
+}
+
+function f(v) { return v === null || v === undefined ? '—' : String(v); }
+function has(v) { return v !== null && v !== undefined; }
+function num(id) { var v = parseFloat($(id).value); return isNaN(v) ? null : v; }
+
+function migrateReadings(st) {
+  var out = [];
+  (st.readings || []).forEach(function (r) {
+    if (r.c) { out.push(r); return; }
+    var o = {};
+    ['ps', 'pf', 'ti', 'tm', 'to', 'hi', 'hm', 'ho'].forEach(function (k) { o[k] = has(r[k]) ? r[k] : null; });
+    var host = out.filter(function (x) { return x.legacy && x.session === r.session && !x.c[r.corner]; })[0];
+    if (host) { host.c[r.corner] = o; return; }
+    var nr = { id: r.id, session: r.session, c: {}, legacy: true };
+    nr.c[r.corner] = o;
+    out.push(nr);
+  });
+  st.readings = out;
+}
+
+function val(c, k) {
+  if (!c) return null;
+  if (k === 'dp') return has(c.ps) && has(c.pf) ? dPsi(c.ps, c.pf) : null;
+  if (k === 'sp') return has(c.ti) && has(c.to) ? Math.round((c.ti - c.to) * 10) / 10 : null;
+  return has(c[k]) ? c[k] : null;
+}
+
+function defaultSessions(kind) {
+  if (kind === 'endurance') return ['Practice 1', 'Practice 2', 'Practice 3', 'Practice 4', 'Qualifying', 'Race'];
+  if (kind === 'test') return ['Session 1', 'Session 2', 'Session 3'];
+  return ['Practice 1', 'Practice 2', 'Qualifying', 'Race'];
+}
+
+function sess() {
+  if (!Array.isArray(state.sessions)) state.sessions = defaultSessions(state.event);
+  state.sets.forEach(function (st) {
+    st.runs.forEach(function (r) { if (state.sessions.indexOf(r.session) < 0) state.sessions.push(r.session); });
+  });
+  return state.sessions;
+}
+
+function durHtml(st) {
+  var d = st.duro;
+  if (!d || !Object.keys(d).length) return '';
+  var head = '<tr><th></th>' + CORNERS.map(function (c) { return '<th>' + c + '</th>'; }).join('') + '</tr>';
+  var body = GROUPS[2].rows.map(function (row) {
+    return '<tr><td class="rt-l">' + row[1] + '</td>' + CORNERS.map(function (c) {
+      return '<td>' + (d[c] && has(d[c][row[0]]) ? d[c][row[0]] : '·') + '</td>';
+    }).join('') + '</tr>';
+  }).join('');
+  return '<div class="meta" style="margin-top:8px">Durometer at prep</div><table class="rt">' + head + body + '</table>';
+}
+
+function loadPrep() {
+  var st = state.sets.filter(function (x) { return x.id === $('pSet').value; })[0];
+  CORNERS.forEach(function (c) {
+    GROUPS[2].rows.forEach(function (row) {
+      var v = st && st.duro && st.duro[c] ? st.duro[c][row[0]] : undefined;
+      $('p-' + c + '-' + row[0]).value = has(v) ? v : '';
+    });
+  });
+  prepShown = $('pSet').value;
+  $('prepMsg').textContent = '';
+}
+
+function decs(v) { var p = String(v).split('.'); return p.length > 1 ? p[1].length : 0; }
+function dPsi(a, b) { return (Number(b) - Number(a)).toFixed(Math.max(1, decs(a), decs(b))); }
+function pTyped(s, v) {
+  s = String(s).trim();
+  return /^\d+(\.\d+)?$/.test(s) ? (s.indexOf('.') < 0 ? s + '.0' : s) : v;
+}
+
+function fmtPsi(v) {
+  if (typeof v === 'string') return /^-?\d+$/.test(v) ? v + '.0' : v;
+  var r1 = Math.round(v * 10) / 10;
+  return r1 === v ? v.toFixed(1) : (Math.round(v * 100) / 100).toFixed(2);
+}
+
+function lineFor(label, r, key, fmt) {
+  var parts = CORNERS.filter(function (cn) { return r.c && r.c[cn] && has(r.c[cn][key]); })
+    .map(function (cn) { return cn + ' ' + fmt(r.c[cn][key]); });
+  return parts.length ? label + ': ' + parts.join(' · ') : '';
+}
+
+function runLines(st, r, head) {
+  var c = r.c || {}, L = [];
+  L.push(head + ' - Set ' + st.name + ' (' + st.type + ')' + (r.laps ? ', ' + r.laps + (r.laps === 1 ? ' lap' : ' laps') : ''));
+  L.push(lineFor('Cold pressure', r, 'ps', fmtPsi));
+  L.push(lineFor('Hot pressure', r, 'pf', fmtPsi));
+  var ch = CORNERS.filter(function (cn) { return c[cn] && has(c[cn].ps) && has(c[cn].pf); }).map(function (cn) {
+    var d = dPsi(c[cn].ps, c[cn].pf);
+    return cn + ' ' + (parseFloat(d) > 0 ? '+' : '') + d;
+  });
+  if (ch.length) L.push('Pressure change: ' + ch.join(' · '));
+  var tl = CORNERS.filter(function (cn) { return c[cn] && (has(c[cn].ti) || has(c[cn].tm) || has(c[cn].to)); }).map(function (cn) {
+    var t = c[cn], sp = has(t.ti) && has(t.to) ? Math.round((t.ti - t.to) * 10) / 10 : null;
+    return cn + ' ' + f(t.ti) + '/' + f(t.tm) + '/' + f(t.to) + (sp === null ? '' : ' (in-out ' + (sp > 0 ? '+' : '') + sp + ')');
+  });
+  if (tl.length) { L.push('Temp in/mid/out:'); tl.forEach(function (x) { L.push(x); }); }
+  return L.filter(Boolean);
+}
+
+function msgHead() { return state.name + (state.date ? ' (' + fmtDate(state.date) + ')' : ''); }
+function runText(st, r) { return [msgHead()].concat(runLines(st, r, r.session + ', Run ' + RUNNO[r.id])).join('\n'); }
+
+function sessionText(ses) {
+  var L = [msgHead(), 'SESSION REPORT: ' + ses], items = [], sets = [], totals = {};
+  state.sets.forEach(function (st) { st.runs.forEach(function (r) { if (r.session === ses && r.done !== false) items.push({ st: st, r: r }); }); });
+  items.sort(function (a, b) { return RUNNO[a.r.id] - RUNNO[b.r.id]; });
+  if (!items.length) { L.push('No completed runs.'); return L.join('\n'); }
+  items.forEach(function (x) {
+    totals[x.st.name] = (totals[x.st.name] || 0) + (x.r.laps || 0);
+    if (sets.indexOf(x.st) < 0) sets.push(x.st);
+  });
+  L.push(items.length + (items.length === 1 ? ' run' : ' runs') + ': ' + sets.map(function (st) { return st.name + ' ' + totals[st.name] + ' laps'; }).join(', '));
+  items.forEach(function (x) { L.push(''); runLines(x.st, x.r, 'Run ' + RUNNO[x.r.id]).forEach(function (l) { L.push(l); }); });
+  var dl = sets.filter(function (st) { return st.duro && Object.keys(st.duro).length; }).map(function (st) {
+    return st.name + ': ' + CORNERS.filter(function (cn) { return st.duro[cn]; }).map(function (cn) {
+      var d = st.duro[cn]; return cn + ' ' + f(d.hi) + '/' + f(d.hm) + '/' + f(d.ho);
+    }).join(' · ');
+  });
+  if (dl.length) { L.push(''); L.push('Prep durometer in/mid/out:'); dl.forEach(function (l) { L.push(l); }); }
+  return L.join('\n');
+}
+
+function openShare(text) {
+  $('shareText').value = text;
+  $('shNative').style.display = navigator.share ? '' : 'none';
+  $('shCopy').style.gridColumn = navigator.share ? '' : '1 / -1';
+  $('shareBox').className = 'sb on';
+}
+function closeShare() { $('shareBox').className = 'sb'; }
+function shareText(text) {
+  if (navigator.share) {
+    navigator.share({ text: text }).catch(function (err) { if (!err || err.name !== 'AbortError') openShare(text); });
+  } else openShare(text);
+}
+
+function hasRuns() { return state.sets.some(function (st) { return st.runs.length; }); }
+function dataRuns(st) { return st.runs.filter(function (r) { return r.c && Object.keys(r.c).length; }).length; }
+
+function numberRuns() {
+  RUNNO = {};
+  var all = [], cnt = {};
+  state.sets.forEach(function (st, si) { st.runs.forEach(function (r, ri) { all.push({ r: r, t: r.t || 0, si: si, ri: ri }); }); });
+  all.sort(function (a, b) { return a.t - b.t || a.si - b.si || a.ri - b.ri; });
+  all.forEach(function (x) { cnt[x.r.session] = (cnt[x.r.session] || 0) + 1; RUNNO[x.r.id] = cnt[x.r.session]; });
+}
+
+function grid(groups, pre) {
+  return groups.map(function (g) {
+    var h = '<div class="rg-g">' + g.title + '</div><div></div>' + CORNERS.map(function (c) { return '<div class="rg-h">' + c + '</div>'; }).join('');
+    return h + g.rows.map(function (row) {
+      return '<div class="rg-l">' + row[1] + '</div>' + CORNERS.map(function (c) {
+        return '<input id="' + pre + c + '-' + row[0] + '" type="number" inputmode="decimal" step="any" aria-label="' + c + ' ' + g.short + ' ' + row[1].toLowerCase() + '">';
+      }).join('');
+    }).join('');
+  }).join('');
+}
+
+function readC(pre) {
+  var c = {}, any = false;
+  CORNERS.forEach(function (cn) {
+    var o = {}, got = false;
+    KEYS.forEach(function (k) {
+      if (!$(pre + cn + '-' + k)) return;
+      var v = num(pre + cn + '-' + k);
+      if (v !== null) { o[k] = (k === 'ps' || k === 'pf') ? pTyped($(pre + cn + '-' + k).value, v) : v; got = true; }
+    });
+    if (got) { c[cn] = o; any = true; }
+  });
+  return any ? c : null;
+}
+
+function runHtml(st, r) {
+  var c = r.c || {}, has_ = Object.keys(c).length;
+  var head = '<tr><th></th>' + CORNERS.map(function (cn) { return '<th>' + cn + '</th>'; }).join('') + '</tr>';
+  var body = DISPLAY.map(function (row) {
+    var vals = CORNERS.map(function (cn) { return val(c[cn], row[0]); });
+    if (vals.every(function (v) { return v === null; })) return '';
+    var calc = row[0] === 'dp' || row[0] === 'sp';
+    var isP = row[0] === 'ps' || row[0] === 'pf' || row[0] === 'dp';
+    return '<tr' + (calc ? ' class="calc"' : '') + '><td class="rt-l">' + row[1] + '</td>' + vals.map(function (v) {
+      return '<td>' + (v === null ? '·' : (calc && v > 0 ? '+' : '') + (isP ? fmtPsi(v) : v)) + '</td>';
+    }).join('') + '</tr>';
+  }).join('');
+  return '<li class="rdx"><div class="rdtop"><strong>Run ' + (RUNNO[r.id] || '') + ' · ' + esc(st.name) +
+    (r.laps ? ' · ' + r.laps + (r.laps === 1 ? ' lap' : ' laps') : '') + '</strong>' +
+    '<span class="btns"><button class="send" data-act="send" data-set="' + st.id + '" data-run="' + r.id + '">Send</button><button data-act="rm" data-set="' + st.id + '" data-run="' + r.id + '" aria-label="Remove run">Remove</button></span></div>' +
+    (has_ ? '<table class="rt">' + head + body + '</table>' : '') + '</li>';
+}
+
+function renderData() {
+  document.querySelectorAll('[data-tab]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.tab === tab); });
+  $('tabSets').style.display = tab === 'sets' ? '' : 'none';
+  $('tabData').style.display = tab === 'data' ? '' : 'none';
+  var jb = $('sentBar'), jst = justSaved && state.sets.filter(function (st) { return st.id === justSaved.setId; })[0];
+  var jr = jst && jst.runs.filter(function (r) { return r.id === justSaved.runId; })[0];
+  if (jr) {
+    jb.style.display = '';
+    jb.innerHTML = '<div><strong>Run saved</strong><div class="meta">' + esc(jr.session) + ' · Run ' + RUNNO[jr.id] + ' · ' + esc(jst.name) + '</div></div>' +
+      '<div class="btns"><button class="primary send" style="width:auto;padding:0 16px" data-act="sendjust">Send run</button><button data-act="dismiss" aria-label="Dismiss">×</button></div>';
+  } else { justSaved = null; jb.style.display = 'none'; }
+
+  var sel = $('dSet').value, sv = $('dSes').value, names = sess();
+  $('dSet').innerHTML = state.sets.length
+    ? state.sets.map(function (st) { return '<option value="' + st.id + '">' + esc(st.name) + ' (' + st.type + ')</option>'; }).join('')
+    : '<option value="">No sets yet</option>';
+  if (sel && state.sets.some(function (st) { return st.id === sel; })) $('dSet').value = sel;
+  $('dSes').innerHTML = opts(names);
+  if (sv && names.indexOf(sv) >= 0) $('dSes').value = sv;
+
+  var pv = $('pSet').value;
+  $('pSet').innerHTML = $('dSet').innerHTML;
+  if (pv && state.sets.some(function (st) { return st.id === pv; })) $('pSet').value = pv;
+  if ($('pSet').value !== prepShown) loadPrep();
+
+  var cur = state.sets.filter(function (st) { return st.id === $('dSet').value; })[0], hot = '';
+  if (cur) {
+    var last = cur.runs.filter(function (r) {
+      return r.done !== false && r.c && Object.keys(r.c).some(function (cn) { return has(r.c[cn].pf); });
+    }).slice(-1)[0];
+    if (last) {
+      hot = 'Last hot pressure on ' + cur.name + ' (' + last.session + ', run ' + RUNNO[last.id] + '): ' +
+        CORNERS.filter(function (cn) { return last.c[cn] && has(last.c[cn].pf); }).map(function (cn) { return cn + ' ' + fmtPsi(last.c[cn].pf); }).join(' · ');
+    }
+  }
+  $('lastHot').textContent = hot;
+
+  $('sesEditList').innerHTML = names.map(function (n, i) {
+    var used = state.sets.some(function (st) { return st.runs.some(function (r) { return r.session === n; }); });
+    return '<li><span>' + esc(n) + '</span>' + (used ? '<span class="meta">has runs</span>' : '<button class="small" data-i="' + i + '" aria-label="Remove session">Remove</button>') + '</li>';
+  }).join('');
+
+  var open = [], done = [];
+  state.sets.forEach(function (st) {
+    st.runs.forEach(function (r) { (r.done === false ? open : done).push({ st: st, r: r }); });
+  });
+  var byNo = function (a, b) { return RUNNO[a.r.id] - RUNNO[b.r.id]; };
+
+  if (!(finishing && $('finForm'))) {
+    var oh = open.sort(byNo).map(function (x) {
+      var r = x.r, st = x.st;
+      var cold = CORNERS.filter(function (cn) { return r.c && r.c[cn] && has(r.c[cn].ps); }).map(function (cn) { return cn + ' ' + fmtPsi(r.c[cn].ps); }).join(' · ');
+      var top = '<div class="top"><div><div class="name num">' + esc(r.session) + ' · Run ' + RUNNO[r.id] + '</div>' +
+        '<div class="meta">' + esc(st.name) + ' (' + st.type + '), on track</div>' + (cold ? '<div class="meta">Cold pressure: ' + cold + '</div>' : '') + '</div></div>';
+      var ids = ' data-set="' + st.id + '" data-run="' + r.id + '"';
+      if (finishing === r.id) {
+        return '<div class="set ' + st.type + '" id="finForm">' + top +
+          '<label for="x-laps" style="margin-top:10px">Laps</label><input id="x-laps" type="number" inputmode="numeric" min="0" placeholder="e.g. 8" style="margin-bottom:6px">' +
+          '<div class="rg">' + grid(FIN_GROUPS, 'x-') + '</div>' +
+          '<div class="evrow" style="margin-top:12px"><button class="primary" style="width:auto;flex:2" data-act="save"' + ids + '>Save run</button><button style="flex:1" data-act="cancel"' + ids + '>Cancel</button></div>' +
+          '<p class="msg" id="finMsg"></p></div>';
+      }
+      return '<div class="set ' + st.type + '">' + top + '<div class="evrow" style="margin-top:10px"><button class="primary" style="width:auto;flex:2" data-act="finish"' + ids + '>Bring in</button>' +
+        '<button class="small warn" style="flex:1" data-act="drop"' + ids + '>' + (pending === r.id ? 'Tap again' : 'Discard') + '</button></div></div>';
+    }).join('');
+    $('openRuns').innerHTML = oh ? '<h2>On track</h2>' + oh : '';
+  }
+
+  var html = names.map(function (ses) {
+    var rs = done.filter(function (x) { return x.r.session === ses; }).sort(byNo);
+    if (!rs.length) return '';
+    return '<section><div class="rdtop" style="margin-bottom:8px"><h2 style="margin:0">' + esc(ses) + '</h2><button class="small send" data-act="sendses" data-i="' + names.indexOf(ses) + '">Send session report</button></div><ul class="list">' + rs.map(function (x) { return runHtml(x.st, x.r); }).join('') + '</ul></section>';
+  }).join('');
+  $('readings').innerHTML = html || '<div class="empty">Completed runs will show up here, grouped by session.</div>';
+}
+
+function fmtDate(d) {
+  var p = String(d).split('-');
+  return p.length === 3 ? new Date(p[0], p[1] - 1, p[2]).toLocaleDateString() : '';
+}
+
+function arm(key) {
+  pending = key; render();
+  setTimeout(function () { if (pending === key) { pending = null; render(); } }, 3000);
+}
+
+function nextName(t) {
+  var n = 1;
+  while (state.sets.some(function (s) { return s.name.toLowerCase() === (t[0] + n).toLowerCase(); })) n++;
+  return t[0] + n;
+}
+
+document.querySelector('.seg').onclick = function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  if (!hasRuns()) state.sessions = defaultSessions(b.dataset.ev);
+  state.event = b.dataset.ev; pending = null; save(); render();
+};
+
+$('addSet').onclick = function () {
+  var name = $('aName').value.trim(), t = $('aType').value, lim = LIMITS[state.event][t];
+  if (!name) { $('addMsg').textContent = 'Enter a name for this set.'; return; }
+  if (state.sets.some(function (s) { return s.name.toLowerCase() === name.toLowerCase(); })) {
+    $('addMsg').textContent = 'A set with that name already exists.'; return;
+  }
+  if (lim !== null && ofType(t).length >= lim) {
+    $('addMsg').textContent = 'You already have ' + lim + ' ' + t.toLowerCase() + ' sets for this event.'; return;
+  }
+  $('addMsg').textContent = '';
+  state.sets.push({ id: uid(), name: name, type: t, prior: Math.max(0, parseInt($('aPrior').value, 10) || 0), runs: [] });
+  $('aName').value = ''; $('aPrior').value = '0'; save(); render();
+};
+
+$('fillBtn').onclick = function () {
+  TYPES.forEach(function (t) {
+    while (ofType(t).length < LIMITS[state.event][t]) {
+      state.sets.push({ id: uid(), name: nextName(t), type: t, runs: [] });
+    }
+  });
+  $('addMsg').textContent = ''; save(); render();
+};
+
+$('sets').onclick = function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  var s = state.sets.filter(function (x) { return x.id === b.dataset.set; })[0];
+  if (!s) return;
+  if (b.dataset.act === 'run') {
+    s.runs = s.runs.filter(function (r) { return r.id !== b.dataset.run; });
+    save(); render();
+  } else if (pending === s.id) {
+    state.sets = state.sets.filter(function (x) { return x.id !== s.id; });
+    pending = null; save(); render();
+  } else { arm(s.id); }
+};
+
+$('reset').onclick = function () {
+  if (pending === 'all') { state.sets = []; pending = null; save(); render(); }
+  else arm('all');
+};
+
+$('evSel').onchange = function () {
+  state = store.events.filter(function (ev) { return ev.id === $('evSel').value; })[0] || state;
+  pending = null; save(); render();
+};
+
+$('evNew').onclick = function () {
+  var ev = { id: uid(), name: 'Event ' + (store.events.length + 1), event: 'standard', date: '', sets: [] };
+  store.events.push(ev); state = ev; pending = null; save(); render();
+  $('evName').focus(); $('evName').select();
+};
+
+$('evName').onchange = function () {
+  state.name = $('evName').value.trim() || 'Untitled event'; save(); render();
+};
+
+$('evDate').onchange = function () { state.date = $('evDate').value; save(); render(); };
+
+$('evNoDate').onclick = function () { state.date = ''; save(); render(); };
+
+$('evDel').onclick = function () {
+  if (pending !== 'ev') { arm('ev'); return; }
+  store.events = store.events.filter(function (ev) { return ev.id !== state.id; });
+  if (!store.events.length) store.events.push({ id: uid(), name: 'Event 1', event: 'standard', created: Date.now(), sets: [] });
+  state = store.events[store.events.length - 1]; pending = null; save(); render();
+};
+
+document.querySelector('.tabs').onclick = function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  tab = b.dataset.tab; pending = null; render();
+};
+
+$('dSet').onchange = renderData;
+$('pSet').onchange = loadPrep;
+
+$('savePrep').onclick = function () {
+  var st = state.sets.filter(function (x) { return x.id === $('pSet').value; })[0];
+  if (!st) { $('prepMsg').textContent = 'Add a tire set first.'; return; }
+  var c = readC('p-');
+  if (!c) { $('prepMsg').textContent = 'Enter at least one reading.'; return; }
+  st.duro = c;
+  save(); render();
+  $('prepMsg').textContent = '';
+};
+
+$('startRun').onclick = function () {
+  justSaved = null;
+  var st = state.sets.filter(function (x) { return x.id === $('dSet').value; })[0];
+  if (!st) { $('readMsg').textContent = 'Add a tire set first, on the Tire sets tab.'; return; }
+  if (!$('dSes').value) { $('readMsg').textContent = 'Add a session first (Edit sessions).'; return; }
+  $('readMsg').textContent = '';
+  st.runs.push({ id: uid(), session: $('dSes').value, laps: null, done: false, t: Date.now(), c: readC('s-') || {} });
+  CORNERS.forEach(function (cn) { $('s-' + cn + '-ps').value = ''; });
+  save(); render();
+};
+
+$('openRuns').onclick = function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  var st = state.sets.filter(function (x) { return x.id === b.dataset.set; })[0]; if (!st) return;
+  var r = st.runs.filter(function (x) { return x.id === b.dataset.run; })[0]; if (!r) return;
+  var act = b.dataset.act;
+  if (act === 'finish') { finishing = r.id; render(); }
+  else if (act === 'cancel') { finishing = null; render(); }
+  else if (act === 'drop') {
+    if (pending === r.id) { st.runs = st.runs.filter(function (x) { return x.id !== r.id; }); pending = null; save(); render(); }
+    else arm(r.id);
+  } else if (act === 'save') {
+    var n = parseInt($('x-laps').value, 10), c = readC('x-');
+    if (isNaN(n) && !c) { $('finMsg').textContent = 'Enter the laps or at least one reading.'; return; }
+    if (c) {
+      r.c = r.c || {};
+      Object.keys(c).forEach(function (cn) { r.c[cn] = Object.assign(r.c[cn] || {}, c[cn]); });
+    }
+    r.laps = isNaN(n) ? null : n; r.done = true; finishing = null; justSaved = { setId: st.id, runId: r.id }; save(); render();
+    $('sentBar').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+};
+
+$('readings').onclick = function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.act === 'sendses') { shareText(sessionText(sess()[parseInt(b.dataset.i, 10)])); return; }
+  var st = state.sets.filter(function (x) { return x.id === b.dataset.set; })[0]; if (!st) return;
+  var r = st.runs.filter(function (x) { return x.id === b.dataset.run; })[0]; if (!r) return;
+  if (b.dataset.act === 'send') { shareText(runText(st, r)); return; }
+  st.runs = st.runs.filter(function (x) { return x.id !== r.id; });
+  save(); render();
+};
+
+$('sesAdd').onclick = function () {
+  var n = $('sesNew').value.trim();
+  if (!n) return;
+  if (sess().some(function (x) { return x.toLowerCase() === n.toLowerCase(); })) { $('sesMsg').textContent = 'That session already exists.'; return; }
+  $('sesMsg').textContent = '';
+  state.sessions.push(n); $('sesNew').value = ''; save(); render();
+};
+
+$('sesEditList').onclick = function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  sess().splice(parseInt(b.dataset.i, 10), 1); save(); render();
+};
+
+$('sentBar').onclick = function (e) {
+  var b = e.target.closest('button'); if (!b || !justSaved) return;
+  if (b.dataset.act === 'dismiss') { justSaved = null; render(); return; }
+  var st = state.sets.filter(function (x) { return x.id === justSaved.setId; })[0];
+  var r = st && st.runs.filter(function (x) { return x.id === justSaved.runId; })[0];
+  if (r) shareText(runText(st, r));
+};
+
+$('shClose').onclick = closeShare;
+$('shareBox').onclick = function (e) { if (e.target === this) closeShare(); };
+$('shNative').onclick = function () { navigator.share({ text: $('shareText').value }).catch(function () {}); };
+$('shWa').onclick = function () { window.open('https://wa.me/?text=' + encodeURIComponent($('shareText').value), '_blank'); };
+$('shSms').onclick = function () { window.location.href = 'sms:?&body=' + encodeURIComponent($('shareText').value); };
+$('shCopy').onclick = function () {
+  var t = $('shareText'), b = this;
+  function ok() { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 1500); }
+  t.select(); t.setSelectionRange(0, 99999);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(t.value).then(ok, function () { try { document.execCommand('copy'); ok(); } catch (e) {} });
+  } else { try { document.execCommand('copy'); ok(); } catch (e) {} }
+};
+
+$('splash').onclick = function () { this.style.display = 'none'; };
+
+// Pressure boxes keep what you typed and always show a decimal: 27 becomes 27.0, 1.80 stays 1.80
+document.addEventListener('focusout', function (e) {
+  var t = e.target;
+  if (!t || t.tagName !== 'INPUT' || !/-(ps|pf)$/.test(t.id || '')) return;
+  var v = t.value.trim();
+  if (/^\d+$/.test(v)) t.value = v + '.0';
+});
+
+render();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+</script>
+</body>
+</html>
