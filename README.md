@@ -74,4 +74,8 @@ Everything is saved on **your own device only**. People you share the link with 
 
 ## Updating the site
 
-Upload the changed files, then raise the version number in `sw.js` (for example `tire-data-tracking-v8` to `tire-data-tracking-v9`) so phones pick up the new version.
+Upload the changed files, then raise the version number in `sw.js` (for example `tire-data-tracking-v10` to `tire-data-tracking-v11`) so phones pick up the new version.
+
+---
+
+© 2026 Ryne Hoover Transportation. All rights reserved. Copying, modifying, redistributing or reselling this code requires written permission.

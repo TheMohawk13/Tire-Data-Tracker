@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<!-- © 2026 Ryne Hoover Transportation. All rights reserved. Tire Data Tracking. No permission is granted to copy, modify, redistribute or resell this code without written permission.⁣⁢⁤⁢⁤⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁤⁢⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁢⁤⁢⁤⁤⁢⁢⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁤⁢⁢⁤⁢⁢⁤⁤⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁤⁤⁤⁢⁤⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁢⁢⁣ -->
+<meta name="author" content="Ryne Hoover Transportation">
+<meta name="build-id" content="TDT-76ee6691b3b7accd">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tire Data Tracking</title>
 <meta name="theme-color" content="#1b1c1e">
@@ -13,7 +16,8 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap">
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+/* © 2026 Ryne Hoover Transportation⁣⁢⁤⁢⁤⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁤⁢⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁢⁤⁢⁤⁤⁢⁢⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁤⁢⁢⁤⁢⁢⁤⁤⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁤⁤⁤⁢⁤⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁢⁢⁣ */
+:root{--build-id:"TDT-76ee6691b3b7accd";box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 --bg:#eceae5;--surface:#fbfaf8;--text:#1b1c1e;--muted:#66686c;--line:#d3d0c8;--accent:#1b1c1e;--accent-text:#fbfaf8;--danger:#b3261e;
 --dry:#f2c200;--wet:#2d7fd3;color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17181a;--surface:#222427;--text:#ecebe7;--muted:#9a9ca1;--line:#383b3f;--accent:#ecebe7;--accent-text:#17181a;--danger:#ff8a80;color-scheme:dark}}
@@ -82,14 +86,8 @@ footer{display:flex;justify-content:space-between;align-items:center;gap:8px;col
 .sp-co{font-size:1.5rem;letter-spacing:.02em}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
 .tabs button{min-height:46px;font-weight:600;background:var(--surface)}
-.tabs button[aria-pressed="true"],.corners button[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
-.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
-.grp{font-size:.9rem;font-weight:600;margin:12px 0 6px}
-.lbl{font-size:.85rem;color:var(--muted);margin-bottom:3px}
-.corners{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px}
-.corners button{min-height:44px;font-weight:600;padding:0}
+.tabs button[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
 .rd{flex:1;min-width:0;padding:2px 0}
-.rd-l{color:var(--muted);font-size:.9rem}
 .rg{display:grid;grid-template-columns:54px repeat(4,minmax(0,1fr));gap:6px 5px;align-items:center}
 .rg-g{grid-column:1/-1;font-size:.9rem;font-weight:600;margin-top:10px}
 .rg-h{text-align:center;font-weight:700;font-size:.85rem;color:var(--muted)}
@@ -150,7 +148,7 @@ button.send{border-color:var(--accent);font-weight:600}
 </svg>
 <div class="sp-title num">Tire Data Tracking</div>
 <div class="sp-by">created by</div>
-<div class="sp-co num">Ryne Hoover Transportation</div>
+<div class="sp-co num">Ryne Hoover Transportation⁣⁢⁤⁢⁤⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁤⁢⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁢⁤⁢⁤⁤⁢⁢⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁤⁢⁢⁤⁢⁢⁤⁤⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁤⁤⁤⁢⁤⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁢⁢⁣</div>
 </div>
 <main>
 <h1>Tire data tracking</h1>
@@ -256,8 +254,10 @@ button.send{border-color:var(--accent);font-weight:600}
 </div>
 
 <script>
+// Tire Data Tracking · © 2026 Ryne Hoover Transportation⁣⁢⁤⁢⁤⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁤⁢⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁢⁤⁢⁤⁤⁢⁢⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁤⁢⁢⁤⁢⁢⁤⁤⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁤⁤⁤⁢⁤⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁢⁢⁣
+var BUILD = 'TDT-76ee6691b3b7accd';
+document.documentElement.setAttribute('data-build', BUILD);
 var STORE_KEY = 'tireDataTracking.v1';
-var SESSIONS = ['Practice 1', 'Practice 2', 'Qualifying', 'Race'];
 var TYPES = ['Dry', 'Wet'];
 var CORNERS = ['LF', 'RF', 'LR', 'RR'];
 var KEYS = ['ps', 'pf', 'ti', 'tm', 'to', 'hi', 'hm', 'ho'];
@@ -293,27 +293,7 @@ try {
       s3.events.forEach(function (ev) {
         if (!LIMITS[ev.event]) ev.event = 'standard';
         if (!Array.isArray(ev.sets)) ev.sets = [];
-        ev.sets.forEach(function (st) {
-          if (!Array.isArray(st.runs)) st.runs = [];
-          if (!Array.isArray(st.readings)) st.readings = [];
-          migrateReadings(st);
-          st.readings.forEach(function (r) { st.runs.push({ id: r.id, session: r.session, laps: null, done: true, t: 0, c: r.c }); });
-          st.readings = [];
-          st.runs.forEach(function (r) {
-            if (!r.c) return;
-            Object.keys(r.c).forEach(function (cn) {
-              var o = r.c[cn];
-              ['hi', 'hm', 'ho'].forEach(function (k) {
-                if (o[k] === undefined || o[k] === null) return;
-                if (!st.duro) st.duro = {};
-                if (!st.duro[cn]) st.duro[cn] = {};
-                if (st.duro[cn][k] === undefined) st.duro[cn][k] = o[k];
-                delete o[k];
-              });
-              if (!Object.keys(o).length) delete r.c[cn];
-            });
-          });
-        });
+        ev.sets.forEach(function (st) { if (!Array.isArray(st.runs)) st.runs = []; });
       });
       store = s3;
     }
@@ -390,7 +370,7 @@ function render() {
       var rs = s.runs.filter(function (r) { return r.session === ses; });
       if (rs.length) { names.push(esc(s.name)); n += rs.reduce(function (a, r) { return a + (r.laps || 0); }, 0); }
     });
-    return '<li><span>' + ses + '</span><span>' + (names.length ? names.join(', ') + ' · ' + n + (n === 1 ? ' lap' : ' laps') : '—') + '</span></li>';
+    return '<li><span>' + esc(ses) + '</span><span>' + (names.length ? names.join(', ') + ' · ' + n + (n === 1 ? ' lap' : ' laps') : '—') + '</span></li>';
   }).join('');
 
   if (!state.sets.length) {
@@ -415,21 +395,6 @@ function render() {
 function f(v) { return v === null || v === undefined ? '—' : String(v); }
 function has(v) { return v !== null && v !== undefined; }
 function num(id) { var v = parseFloat($(id).value); return isNaN(v) ? null : v; }
-
-function migrateReadings(st) {
-  var out = [];
-  (st.readings || []).forEach(function (r) {
-    if (r.c) { out.push(r); return; }
-    var o = {};
-    ['ps', 'pf', 'ti', 'tm', 'to', 'hi', 'hm', 'ho'].forEach(function (k) { o[k] = has(r[k]) ? r[k] : null; });
-    var host = out.filter(function (x) { return x.legacy && x.session === r.session && !x.c[r.corner]; })[0];
-    if (host) { host.c[r.corner] = o; return; }
-    var nr = { id: r.id, session: r.session, c: {}, legacy: true };
-    nr.c[r.corner] = o;
-    out.push(nr);
-  });
-  st.readings = out;
-}
 
 function val(c, k) {
   if (!c) return null;
@@ -587,7 +552,7 @@ function readC(pre) {
 }
 
 function runHtml(st, r) {
-  var c = r.c || {}, has_ = Object.keys(c).length;
+  var c = r.c || {}, hasData = Object.keys(c).length;
   var head = '<tr><th></th>' + CORNERS.map(function (cn) { return '<th>' + cn + '</th>'; }).join('') + '</tr>';
   var body = DISPLAY.map(function (row) {
     var vals = CORNERS.map(function (cn) { return val(c[cn], row[0]); });
@@ -601,7 +566,7 @@ function runHtml(st, r) {
   return '<li class="rdx"><div class="rdtop"><strong>Run ' + (RUNNO[r.id] || '') + ' · ' + esc(st.name) +
     (r.laps ? ' · ' + r.laps + (r.laps === 1 ? ' lap' : ' laps') : '') + '</strong>' +
     '<span class="btns"><button class="send" data-act="send" data-set="' + st.id + '" data-run="' + r.id + '">Send</button><button data-act="rm" data-set="' + st.id + '" data-run="' + r.id + '" aria-label="Remove run">Remove</button></span></div>' +
-    (has_ ? '<table class="rt">' + head + body + '</table>' : '') + '</li>';
+    (hasData ? '<table class="rt">' + head + body + '</table>' : '') + '</li>';
 }
 
 function renderData() {

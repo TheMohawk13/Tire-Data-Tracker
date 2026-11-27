@@ -1,6 +1,7 @@
 // Bump CACHE when you upload a new version so phones pick up the change.
+// © 2026 Ryne Hoover Transportation. All rights reserved.⁣⁢⁤⁢⁤⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁤⁢⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁢⁤⁢⁤⁤⁢⁢⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁤⁢⁢⁤⁢⁢⁤⁤⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁤⁤⁤⁢⁤⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁢⁢⁣
 var PREFIX = 'tire-data-tracking-';
-var CACHE = PREFIX + 'v8';
+var CACHE = PREFIX + 'v10';
 var FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {
