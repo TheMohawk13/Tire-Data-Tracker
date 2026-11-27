@@ -6,13 +6,6 @@ Created by Ryne Hoover Transportation.
 
 This is a separate project from Tire Set Tracker. It has its own repository, its own address and its own saved data, so the two never mix.
 
-## Put it on GitHub Pages
-
-1. Create a new **public** repository named `tire-data-tracking`. Do not reuse the `tire-set-tracker` repository.
-2. Upload every file in this folder to the repository root, then commit.
-3. Go to **Settings > Pages**. Under "Build and deployment", choose **Deploy from a branch**, pick `main` and `/ (root)`, and **Save**.
-4. After a minute or two the site is live at `https://themohawk13.github.io/tire-data-tracking/`.
-
 ## Put it on your phone
 
 1. Open the link in Safari (iPhone) or Chrome (Android) and let it finish loading.
@@ -71,10 +64,6 @@ LF 188/182/174 (in-out +14)
 ## Where your data lives
 
 Everything is saved on **your own device only**. People you share the link with start with a blank copy. Clearing your browser's website data erases it, and a different phone or browser will not have your events.
-
-## Updating the site
-
-Upload the changed files, then raise the version number in `sw.js` (for example `tire-data-tracking-v10` to `tire-data-tracking-v11`) so phones pick up the new version.
 
 ---
 
