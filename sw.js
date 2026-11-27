@@ -1,6 +1,6 @@
-// Bump CACHE when you upload a new version so phones pick up the change.
-// © 2026 Ryne Hoover Transportation. All rights reserved.⁣⁢⁤⁢⁤⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁤⁢⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁢⁤⁢⁤⁤⁢⁢⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁤⁢⁢⁤⁢⁢⁤⁤⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁤⁤⁤⁢⁤⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁢⁢⁣
-var PREFIX = 'tire-data-tracking-';
+// Bump CACHE when you upload a new version so phones pick it up.
+// © 2026 Ryne Hoover Transportation. All rights reserved.⁣⁢⁤⁢⁤⁢⁤⁢⁢⁢⁤⁢⁤⁢⁢⁤⁤⁢⁤⁢⁤⁢⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁤⁢⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁤⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁢⁤⁢⁢⁤⁤⁢⁤⁢⁤⁢⁢⁤⁤⁤⁢⁢⁢⁢⁢⁤⁤⁢⁤⁢⁢⁢⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁤⁤⁢⁢⁢⁢⁢⁤⁤⁢⁢⁤⁢⁢⁢⁤⁤⁢⁤⁢⁢⁢⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁢⁢⁤⁤⁢⁢⁢⁢⁤⁢⁢⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁢⁤⁣
+var PREFIX = 'tire-tracker-';
 var CACHE = PREFIX + 'v10';
 var FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
@@ -9,7 +9,6 @@ self.addEventListener('install', function (e) {
 });
 
 self.addEventListener('activate', function (e) {
-  // Only remove this app's old caches (other apps on the same site keep theirs).
   e.waitUntil(caches.keys().then(function (keys) {
     return Promise.all(keys.filter(function (k) { return k.indexOf(PREFIX) === 0 && k !== CACHE; }).map(function (k) { return caches.delete(k); }));
   }).then(function () { return self.clients.claim(); }));
