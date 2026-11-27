@@ -221,6 +221,7 @@ button.send{border-color:var(--accent);font-weight:600}
 </div>
 <div class="rg" id="rGrid"></div>
 <div class="meta" id="lastHot" style="margin-top:8px"></div>
+<div id="sEnv"></div>
 <button class="primary" id="startRun" style="margin-top:12px">Send out</button>
 <p class="msg" id="readMsg"></p>
 <details class="sesbox"><summary>Edit sessions</summary>
@@ -315,6 +316,7 @@ function opts(arr) { return arr.map(function (a) { return '<option>' + esc(a) + 
 
 $('rGrid').innerHTML = grid(START_GROUPS, 's-');
 $('pGrid').innerHTML = grid(PREP_GROUPS, 'p-');
+$('sEnv').innerHTML = envBoxes('s-', 10);
 
 function render() {
   numberRuns();
@@ -461,6 +463,34 @@ function lineFor(label, r, key, fmt) {
   return parts.length ? label + ': ' + parts.join(' · ') : '';
 }
 
+// Optional ambient and track temperature, one value per run (r.env = {amb, track}); can be entered at send out or bring in
+function envBoxes(pre, top) {
+  return '<div class="row" style="margin-top:' + top + 'px"><div><label for="' + pre + 'amb">Ambient temp</label><input id="' + pre + 'amb" type="number" inputmode="decimal" step="any" placeholder="optional"></div>' +
+    '<div><label for="' + pre + 'trk">Track temp</label><input id="' + pre + 'trk" type="number" inputmode="decimal" step="any" placeholder="optional"></div></div>';
+}
+function readEnv(a, t) {
+  var o = {}, av = num(a), tv = num(t);
+  if (av !== null) o.amb = av;
+  if (tv !== null) o.track = tv;
+  return av !== null || tv !== null ? o : null;
+}
+function envVal(r, key) {
+  var e = r.env || {};
+  if (has(e[key])) return e[key];
+  if (e.hot && has(e.hot[key])) return e.hot[key];   // runs saved by the short-lived cold/hot version
+  if (e.cold && has(e.cold[key])) return e.cold[key];
+  return null;
+}
+function envLine(r, label, key) {
+  var v = envVal(r, key);
+  return v === null ? '' : label + ': ' + v;
+}
+function envHtml(r) {
+  return [envLine(r, 'Ambient temp', 'amb'), envLine(r, 'Track temp', 'track')].filter(Boolean).map(function (l) {
+    return '<div class="meta">' + esc(l) + '</div>';
+  }).join('');
+}
+
 function runLines(st, r, head) {
   var c = r.c || {}, L = [];
   L.push(head + ' - Set ' + st.name + ' (' + st.type + ')' + (r.laps ? ', ' + r.laps + (r.laps === 1 ? ' lap' : ' laps') : ''));
@@ -471,6 +501,8 @@ function runLines(st, r, head) {
     return cn + ' ' + (parseFloat(d) > 0 ? '+' : '') + d;
   });
   if (ch.length) L.push('Pressure change: ' + ch.join(' · '));
+  L.push(envLine(r, 'Ambient temp', 'amb'));
+  L.push(envLine(r, 'Track temp', 'track'));
   var tl = CORNERS.filter(function (cn) { return c[cn] && (has(c[cn].ti) || has(c[cn].tm) || has(c[cn].to)); }).map(function (cn) {
     var t = c[cn], sp = has(t.ti) && has(t.to) ? Math.round((t.ti - t.to) * 10) / 10 : null;
     return cn + ' ' + f(t.ti) + '/' + f(t.tm) + '/' + f(t.to) + (sp === null ? '' : ' (in-out ' + (sp > 0 ? '+' : '') + sp + ')');
@@ -566,7 +598,7 @@ function runHtml(st, r) {
   return '<li class="rdx"><div class="rdtop"><strong>Run ' + (RUNNO[r.id] || '') + ' · ' + esc(st.name) +
     (r.laps ? ' · ' + r.laps + (r.laps === 1 ? ' lap' : ' laps') : '') + '</strong>' +
     '<span class="btns"><button class="send" data-act="send" data-set="' + st.id + '" data-run="' + r.id + '">Send</button><button data-act="rm" data-set="' + st.id + '" data-run="' + r.id + '" aria-label="Remove run">Remove</button></span></div>' +
-    (hasData ? '<table class="rt">' + head + body + '</table>' : '') + '</li>';
+    (hasData ? '<table class="rt">' + head + body + '</table>' : '') + envHtml(r) + '</li>';
 }
 
 function renderData() {
@@ -622,12 +654,12 @@ function renderData() {
       var r = x.r, st = x.st;
       var cold = CORNERS.filter(function (cn) { return r.c && r.c[cn] && has(r.c[cn].ps); }).map(function (cn) { return cn + ' ' + fmtPsi(r.c[cn].ps); }).join(' · ');
       var top = '<div class="top"><div><div class="name num">' + esc(r.session) + ' · Run ' + RUNNO[r.id] + '</div>' +
-        '<div class="meta">' + esc(st.name) + ' (' + st.type + '), on track</div>' + (cold ? '<div class="meta">Cold pressure: ' + cold + '</div>' : '') + '</div></div>';
+        '<div class="meta">' + esc(st.name) + ' (' + st.type + '), on track</div>' + (cold ? '<div class="meta">Cold pressure: ' + cold + '</div>' : '') + envHtml(r) + '</div></div>';
       var ids = ' data-set="' + st.id + '" data-run="' + r.id + '"';
       if (finishing === r.id) {
         return '<div class="set ' + st.type + '" id="finForm">' + top +
           '<label for="x-laps" style="margin-top:10px">Laps</label><input id="x-laps" type="number" inputmode="numeric" min="0" placeholder="e.g. 8" style="margin-bottom:6px">' +
-          '<div class="rg">' + grid(FIN_GROUPS, 'x-') + '</div>' +
+          '<div class="rg">' + grid(FIN_GROUPS, 'x-') + '</div>' + envBoxes('x-', 12) +
           '<div class="evrow" style="margin-top:12px"><button class="primary" style="width:auto;flex:2" data-act="save"' + ids + '>Save run</button><button style="flex:1" data-act="cancel"' + ids + '>Cancel</button></div>' +
           '<p class="msg" id="finMsg"></p></div>';
       }
@@ -761,8 +793,10 @@ $('startRun').onclick = function () {
   if (!st) { $('readMsg').textContent = 'Add a tire set first, on the Tire sets tab.'; return; }
   if (!$('dSes').value) { $('readMsg').textContent = 'Add a session first (Edit sessions).'; return; }
   $('readMsg').textContent = '';
-  st.runs.push({ id: uid(), session: $('dSes').value, laps: null, done: false, t: Date.now(), c: readC('s-') || {} });
+  var env0 = readEnv('s-amb', 's-trk');
+  st.runs.push({ id: uid(), session: $('dSes').value, laps: null, done: false, t: Date.now(), c: readC('s-') || {}, env: env0 || {} });
   CORNERS.forEach(function (cn) { $('s-' + cn + '-ps').value = ''; });
+  $('s-amb').value = ''; $('s-trk').value = '';
   save(); render();
 };
 
@@ -777,12 +811,13 @@ $('openRuns').onclick = function (e) {
     if (pending === r.id) { st.runs = st.runs.filter(function (x) { return x.id !== r.id; }); pending = null; save(); render(); }
     else arm(r.id);
   } else if (act === 'save') {
-    var n = parseInt($('x-laps').value, 10), c = readC('x-');
-    if (isNaN(n) && !c) { $('finMsg').textContent = 'Enter the laps or at least one reading.'; return; }
+    var n = parseInt($('x-laps').value, 10), c = readC('x-'), ev = readEnv('x-amb', 'x-trk');
+    if (isNaN(n) && !c && !ev) { $('finMsg').textContent = 'Enter the laps or at least one reading.'; return; }
     if (c) {
       r.c = r.c || {};
       Object.keys(c).forEach(function (cn) { r.c[cn] = Object.assign(r.c[cn] || {}, c[cn]); });
     }
+    if (ev) { r.env = r.env || {}; if (has(ev.amb)) r.env.amb = ev.amb; if (has(ev.track)) r.env.track = ev.track; }
     r.laps = isNaN(n) ? null : n; r.done = true; finishing = null; justSaved = { setId: st.id, runId: r.id }; save(); render();
     $('sentBar').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }

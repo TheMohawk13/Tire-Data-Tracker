@@ -1,5 +1,4 @@
 # Tire Data Tracking
-https://themohawk13.github.io/Tire-Data-Tracker/
 
 Everything the Tire Set Tracker does (dry and wet allocation, sessions, laps, saved events), plus a **Runs** tab for recording each run's pressures and temperatures, a garage prep section for durometer readings on each tire set, and buttons to send a run or a whole session to the engineer.
 
@@ -22,11 +21,11 @@ The icon has a blue accent so you can tell it apart from Tire Set Tracker.
 
 **Runs tab** follows how a session actually goes:
 
-1. **Send out.** Choose the tire set and the session, enter the cold pressures for LF, RF, LR and RR (optional), and tap **Send out**. The run appears under **On track** as, for example, "Practice 2 · Run 3". The runs are numbered automatically within each session.
-2. **Bring in.** When the car comes in, tap **Bring in** on that run and enter the laps, the hot pressures and the tire temperatures (inside, middle, outer) for all four tires. Fill in only what you measured. Tap **Save run**.
+1. **Send out.** Choose the tire set and the session, enter the cold pressures for LF, RF, LR and RR (optional), and tap **Send out**. If you took them, also enter the **Ambient temp** (for example the garage air temperature when you set the base pressures) and the **Track temp**. Both boxes are optional, and each is one value per run. The run appears under **On track** as, for example, "Practice 2 · Run 3". The runs are numbered automatically within each session.
+2. **Bring in.** When the car comes in, tap **Bring in** on that run and enter the laps, the hot pressures and the tire temperatures (inside, middle, outer) for all four tires, plus the **Ambient temp** and **Track temp** if you didn't already enter them at Send out (a value entered here replaces one entered at Send out). Fill in only what you measured. Tap **Save run**.
 3. The pressure you set after the engineers' changes goes in as the cold pressure of the next run. When you pick a tire set, the screen shows the last hot pressures recorded on it for reference.
 
-Finished runs are listed under their session as a table with the four tires in columns, including the pressure change and the inside minus outer temperature difference.
+Finished runs are listed under their session as a table with the four tires in columns, including the pressure change and the inside minus outer temperature difference. Under the table, the run's ambient and track temperatures show if you entered them.
 
 **No units.** The app has no unit labels or unit settings. Type your numbers in whatever your team uses (psi, kPa or bar, °F or °C). Nothing is converted, so what you type is what the engineer sees.
 
@@ -47,6 +46,8 @@ Practice 2, Run 3 - Set D3 (Dry), 8 laps
 Cold pressure: LF 27.0 · RF 27.0 · LR 26.0 · RR 26.0
 Hot pressure: LF 31.2 · RF 31.6 · LR 29.8 · RR 30.1
 Pressure change: LF +4.2 · RF +4.6 · LR +3.8 · RR +4.1
+Ambient temp: 68
+Track temp: 91
 Temp in/mid/out:
 LF 188/182/174 (in-out +14)
 ```
