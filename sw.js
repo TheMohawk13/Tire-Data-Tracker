@@ -1,7 +1,7 @@
-// Bump CACHE when you upload a new version so phones pick it up.
-// © 2026 Ryne Hoover Transportation. All rights reserved.⁣⁢⁤⁢⁤⁢⁤⁢⁢⁢⁤⁢⁤⁢⁢⁤⁤⁢⁤⁢⁤⁢⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁤⁢⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁤⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁢⁤⁢⁢⁤⁤⁢⁤⁢⁤⁢⁢⁤⁤⁤⁢⁢⁢⁢⁢⁤⁤⁢⁤⁢⁢⁢⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁤⁤⁢⁢⁢⁢⁢⁤⁤⁢⁢⁤⁢⁢⁢⁤⁤⁢⁤⁢⁢⁢⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁢⁢⁤⁤⁢⁢⁢⁢⁤⁢⁢⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁢⁤⁣
-var PREFIX = 'tire-tracker-';
-var CACHE = PREFIX + 'v10';
+// Bump CACHE when you upload a new version so phones pick up the change.
+// © 2026 Ryne Hoover Transportation. All rights reserved.⁣⁢⁤⁢⁤⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁤⁢⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁢⁤⁢⁤⁤⁢⁢⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁤⁢⁢⁤⁢⁢⁤⁤⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁤⁤⁤⁢⁤⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁢⁢⁣
+var PREFIX = 'tire-data-tracking-';
+var CACHE = PREFIX + 'v1.1';
 var FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {
@@ -9,16 +9,18 @@ self.addEventListener('install', function (e) {
 });
 
 self.addEventListener('activate', function (e) {
+  // Only remove this app's old caches (other apps on the same site keep theirs).
   e.waitUntil(caches.keys().then(function (keys) {
     return Promise.all(keys.filter(function (k) { return k.indexOf(PREFIX) === 0 && k !== CACHE; }).map(function (k) { return caches.delete(k); }));
   }).then(function () { return self.clients.claim(); }));
 });
 
 // Serve from cache first (works offline), refresh the cache in the background.
+// Only this app's own cache is searched, so another app's cache on the same site can never answer for it.
 self.addEventListener('fetch', function (e) {
   if (e.request.method !== 'GET') return;
   if (new URL(e.request.url).origin !== location.origin) return;
-  e.respondWith(caches.match(e.request).then(function (hit) {
+  e.respondWith(caches.open(CACHE).then(function (own) { return own.match(e.request); }).then(function (hit) {
     var net = fetch(e.request).then(function (res) {
       if (res && res.ok) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(e.request, copy); }); }
       return res;

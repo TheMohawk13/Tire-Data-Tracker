@@ -84,6 +84,8 @@ footer{display:flex;justify-content:space-between;align-items:center;gap:8px;col
 .sp-title{font-size:2.4rem;line-height:1}
 .sp-by{color:var(--muted);margin:10px 0 2px;font-size:.95rem}
 .sp-co{font-size:1.5rem;letter-spacing:.02em}
+.beta{margin:18px 0 0;text-align:center;color:var(--muted);font-size:.85rem;font-weight:600;letter-spacing:.02em}
+#splash .beta{position:absolute;left:0;right:0;bottom:calc(18px + env(safe-area-inset-bottom,0px));margin:0}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
 .tabs button{min-height:46px;font-weight:600;background:var(--surface)}
 .tabs button[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
@@ -149,6 +151,7 @@ button.send{border-color:var(--accent);font-weight:600}
 <div class="sp-title num">Tire Data Tracking</div>
 <div class="sp-by">created by</div>
 <div class="sp-co num">Ryne Hoover Transportation⁣⁢⁤⁢⁤⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁢⁢⁤⁢⁤⁢⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁤⁢⁢⁤⁢⁤⁢⁤⁤⁢⁢⁤⁢⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁤⁢⁢⁤⁢⁢⁤⁤⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁢⁢⁢⁤⁤⁢⁤⁤⁤⁢⁤⁤⁢⁢⁢⁢⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁢⁤⁤⁢⁤⁤⁢⁢⁤⁢⁢⁣</div>
+<div class="beta">V1.1 Beta. Please Do Not Share</div>
 </div>
 <main>
 <h1>Tire data tracking</h1>
@@ -238,6 +241,7 @@ button.send{border-color:var(--accent);font-weight:600}
 <span>Saved on this device only, so people you share the link with start fresh and can’t see your data. Clearing your browser data erases it.</span>
 <button class="small warn" id="reset">Clear this event</button>
 </footer>
+<p class="beta">V1.1 Beta. Please Do Not Share</p>
 </main>
 
 <div class="sb" id="shareBox" role="dialog" aria-label="Send readings">
